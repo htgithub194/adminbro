@@ -21,7 +21,7 @@ const User = mongoose.model('User', {
 // Cars collection
 const Cars = mongoose.model('Car', {
     name: String,
-    color: { type: String, enum: ['black'], required: true }, // Henry Ford
+    color: { type: String, enum: ['black'], required: true },
     ownerId: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
@@ -35,11 +35,10 @@ const canEditCars = ({ currentAdmin, record }) => {
         || currentAdmin._id === record.param('ownerId')
     )
 }
+
 const canModifyUsers = ({ currentAdmin }) => {
-    console.log(currentAdmin)
     return currentAdmin && currentAdmin.role === 'admin'
 }
-// const canModifyUsers = ({ currentAdmin }) => true
 
 // Pass all configuration settings to AdminBro
 const adminBro = new AdminBro({
@@ -92,7 +91,6 @@ const adminBro = new AdminBro({
                     },
                     edit: { isAccessible: canModifyUsers },
                     delete: { isAccessible: canModifyUsers },
-                    new: { isAccessible: canModifyUsers },
                 }
             }
         }
@@ -105,9 +103,8 @@ const router = AdminBroExpressjs.buildAuthenticatedRouter(adminBro, {
     authenticate: async (email, password) => {
         const user = await User.findOne({ email })
         if (user) {
-            console.log("FIND user: ", user)
-            // const matched = await bcrypt.compare(password, user.encryptedPassword)
-            if (true) {
+            const matched = await bcrypt.compare(password, user.encryptedPassword)
+            if (matched) {
                 return user
             }
         }
@@ -121,7 +118,7 @@ app.use(adminBro.options.rootPath, router)
 // Running the server
 const run = async () => {
     await mongoose.connect('mongodb+srv://andy:123@cluster0.hr4ge.mongodb.net/Cluster0?retryWrites=true&w=majority', { useNewUrlParser: true })
-    await app.listen(9494, () => console.log(`Example app listening on port 8080!`))
+    await app.listen(8080, () => console.log(`Example app listening on port 8080!`))
 }
 
 run()
